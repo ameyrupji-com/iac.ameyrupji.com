@@ -1,0 +1,46 @@
+version: 2.1
+
+orbs:
+  aws-s3: circleci/aws-s3@1.0.4
+  
+references:
+
+deploy_base_image: &deploy_base_image
+  circleci/python:2.7
+
+working_directory: &working_directory
+  ~/iac-ameyrupji
+  
+deploy_default_config: &deploy_default_config
+  docker:
+    - image: *deploy_base_image
+  working_directory: *working_directory
+
+repo_cache_key: &repo_cache_key
+  iac-ameyrupji-com-{{ .Branch }}-{{ .Revision }}
+  
+jobs:
+  upload-master:
+    <<: *deploy_default_config
+    steps:
+      - checkout
+      - aws-s3/copy:
+          from: /home/circleci/iac-ameyrupji/src/ 
+          to: s3://iac.ameyrupji.com/
+          arguments: --recursive
+
+workflows:
+  version: 2
+  upload-code:
+    jobs:
+      - approve-master:
+          type: approval
+          filters:
+            branches:
+              only: master
+      - upload-master:
+          requires:
+              - approve-master
+          filters:
+              branches:
+                only: master
