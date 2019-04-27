@@ -43,4 +43,6 @@ workflows:
               - approve-master
           filters:
               branches:
-                only: master
+                only: 
+                  - master
+                  - develop
