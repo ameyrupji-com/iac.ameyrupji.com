@@ -29,6 +29,15 @@ jobs:
           to: s3://iac.ameyrupji.com/
           arguments: --recursive
 
+  upload-develop:
+    <<: *deploy_default_config
+    steps:
+      - checkout
+      - aws-s3/copy:
+          from: /home/circleci/iac-ameyrupji/src/ 
+          to: s3://iac.beta.ameyrupji.com/
+          arguments: --recursive
+
 workflows:
   version: 2
   upload-code:
@@ -43,6 +52,8 @@ workflows:
               - approve-master
           filters:
               branches:
-                only: 
-                  - master
-                  - develop
+                only: master
+      - upload-develop:
+          filters:
+              branches:
+                only: develop
